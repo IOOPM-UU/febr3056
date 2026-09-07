@@ -9,7 +9,7 @@
             "name": "utils",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/febr3056/ioopm/labbar/lab2/utils.c",
+            "program": "/home/febr3056/ioopm/debug/utils_debug.c",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
