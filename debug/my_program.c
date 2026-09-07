@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
   }
   int upper_limit = atoi(argv[1]);
 
-  int sum;
+  int sum = 0;
   int idx = 0;
   while (idx < 10) {
     sum += idx;

@@ -9,7 +9,7 @@ bool is_number(char *str) {
     int state = 1;
     int length = strlen(str);
     for (int i = 0; i < length; ++i) {
-        if (!isdigit(str[i])) {
+        if (!(isdigit(str[i]) || (i == 0 && str[i] == '-'))) {
             state = 0;
         }
     };
@@ -23,7 +23,6 @@ int main(int argc, char *argv[]) {
     else {
         if (argc > 1) {
             printf("%s is not a number\n", argv[1]);
-            //printf("%lu\n", );
         }
         else {
             printf("Please provide a command line argument!\n");
