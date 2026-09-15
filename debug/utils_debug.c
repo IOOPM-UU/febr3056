@@ -7,10 +7,6 @@ int read_string(char *buf, int buf_siz) {
     //precon: buf siz måste vara >= 1 och kan inte börja med siffror
     int total_read = 0;
     int result;
-    
-    scanf("%d", &result);
-    scanf("%d", &result);
-    scanf("%d", &result);
         
     fgets(buf, buf_siz, stdin);
     int c;
