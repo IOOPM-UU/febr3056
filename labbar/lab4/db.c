@@ -38,7 +38,7 @@ item_t make_item(char *name, char *desc, int price, char *shelf) {
 bool is_shelf(char *str) {
     int state = 1;
     int length = strlen(str);
-    if (length == 1)
+    if (length == 1 || length == 0)
     {
         state = 0;
     }
@@ -57,7 +57,7 @@ char *ask_questions_shelf(char *question) {
 item_t input_item() {
     char *name = ask_questions_string("Input item name:\n");
     char *desc = ask_questions_string("Input item description:\n");
-    int price = ask_questions_int("Input item price (SEK):\n");
+    int price = abs(ask_questions_int("Input item price (SEK):\n"));
     char *shelf = ask_questions_shelf("Input item shelf:\n");
     return make_item(name, desc, price, shelf);
 }
@@ -145,9 +145,9 @@ char *identity(char *str) {
     return str;
 }
 
-char *ask_questions_menu(char *question) {
-    char *result = ask_question(question, valid_input_menu, (convert_funk *) identity).string_value;
-    return result;
+char ask_questions_menu(char *question) {
+    char result = *ask_question(question, valid_input_menu, (convert_funk *) identity).string_value;
+    return (char) toupper(result);
 }
 
 void add_item_to_db(item_t *items, int *no_items) {
@@ -176,25 +176,25 @@ void event_loop(item_t *items, int no_items) {
     do
     {
         /* code */
-        input = *ask_questions_menu(print_menu());
+        input = ask_questions_menu(print_menu());
         if (input == 'L' || input == 'l') {
             add_item_to_db(items, &no_items);
-        } else if (input == 'T' || input == 't')
+        } else if (input == 'T')
         {
             /* code */
             remove_item_from_db(items, &no_items);
-        } else if (input == 'R' || input == 'r')
+        } else if (input == 'R')
         {
             /* code */
             edit_db(items);
-        } else if (input == 'G' || input == 'g')
+        } else if (input == 'G')
         {
-            printf("Funktion ej implementerad!\n");
-        } else if (input == 'H' || input == 'h')
+            printf("Ännu ej implementerad!\n");
+        } else if (input == 'H')
         {
             list_db(items, no_items);
         } 
-    } while (input != 'A' && input != 'a');
+    } while (input != 'A');
     
 
 }
@@ -222,10 +222,10 @@ int main(int argc, char *argv[])
       {
         // Läs in en vara, lägg till den i arrayen, öka storleksräknaren
         /*
+        */
         item_t item = input_item();
         db[db_siz] = item;
         ++db_siz;
-        */
         
       }
     }
