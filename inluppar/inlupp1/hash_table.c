@@ -15,7 +15,7 @@ struct hash_table
 {
   // DODGE: hard-coding number of buckets as 17.
   // NOTE: addressing this dodge is optional.
-  entry_t *buckets[17];
+  entry_t buckets[17];
 };
 /*
 void Free(entry_t *ptr) {
@@ -31,6 +31,19 @@ static size_t string_knr_hash(const char *str)
   }
   return result;
 }
+static entry_t *entry_create(char *key, int value, entry_t *next) {
+  entry_t *result = calloc(1, sizeof(entry_t));
+  result->key = key;
+  result->value = value;
+  result->next = next;
+  return result;
+}
+
+void entry_destroy(entry_t *entry) {
+  entry_t *tmp = entry->next;
+  Free(entry);
+  entry = tmp;
+}
 
 
 ioopm_hash_table_t *ioopm_hash_table_create(void) {
@@ -40,73 +53,69 @@ ioopm_hash_table_t *ioopm_hash_table_create(void) {
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) {
 	if (ht != NULL) {
 		for(size_t i = 0; i < 17; ++i) {
-			if (ht->buckets[i] != NULL) {
-				entry_t *current = ht->buckets[i];
+			if (ht->buckets[i].next != NULL) {
+				entry_t *current = ht->buckets[i].next;
 				//SHOULD BE A WHILE-LOOP, NEEDS TO EMPTY ALL ENTRIES.
 				while (current != NULL) {
-
 					if (current->next != NULL) {
-						entry_t *tmp = current->next;
-						Free(current);
-						current = tmp->next; // seg fault coz next is NULL and has no next entry to assign to current.
+						entry_destroy(current);
 					} else {
 						Free(current);
 					}
 				}
 			}
-      
     	}
 		Free(ht);
 	}
 }
-void ioopm_hash_table_insert(ioopm_hash_table_t *ht, char *key, int value) {
-  // find bucket
-  	size_t bucket = string_knr_hash(key) % 17;
+entry_t *find_previous_entry(ioopm_hash_table_t *ht, char *key) {
+  size_t bucket = string_knr_hash(key) % 17;
 
-  	// look for an entry with the key we want
-  	entry_t *current = ht->buckets[bucket];
-	while (current != NULL && strcmp(current->key, key) != 0) {
-		current = current->next;
-	}
 
-  // if the key exists, update the value, otherwise, add a new entry to the end of the list
-  	if (current != NULL) {
-    current->value = value;
-	}
-	else {
-		// if the bucket is empty, we add a new first node
-		if (ht->buckets[bucket] == NULL) {
-		ht->buckets[bucket] = calloc(1, 2 * sizeof(entry_t)); //
-		ht->buckets[bucket]->key = key;
-		ht->buckets[bucket]->value = value;
-		ht->buckets[bucket]->next = NULL;
-		} else {
-		// otherwise, we append a new node to the list
-		entry_t *last = ht->buckets[bucket];
-		while (last->next != NULL) {
-			last = last->next;
-		}
-		last->next = calloc(1, sizeof(entry_t));
-		last->next->key = key;
-		last->next->value = value;
-		last->next->next = NULL;
-		}
-	}
+
+  entry_t *previous = &ht->buckets[bucket];
+  
+  if (previous->next == NULL) {
+    return previous;
+  }
+  
+  while (previous->next != NULL && strcmp(previous->next->key, key) != 0)
+  {
+    previous = previous->next;
+  }
+  return previous;  
 }
 
-bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, char *key, int *result)
+
+void ioopm_hash_table_insert(ioopm_hash_table_t *ht, char *key, int value)
 {
-	size_t bucket = string_knr_hash(key) % 17;
+  entry_t *previous = find_previous_entry(ht, key);
+  // if the key exists, update the value, otherwise, add a new entry to the end of the list
+  if (previous->next != NULL)
+  {
+    previous->next->value = value;
+  }
+  else
+  {
+    previous->next = entry_create(key, value, NULL);
+  }
+}
+
+bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, char *key, int *result) {
 
 	// look for an entry with the key we want
-	entry_t *current = ht->buckets[bucket];
+
+  /*
+	entry_t *current = ht->buckets[bucket].next;
 	while (current != NULL && strcmp(current->key, key) != 0) {
 		current = current->next;
 	}
+  */
+  entry_t *previous = find_previous_entry(ht, key);
 
 	// if the key exists, return the value, otherwise, indicate that the lookup failed
-	if (current != NULL) {
-		*result = current->value;
+	if (previous->next != NULL) {
+		*result = previous->next->value;
 		return true;
 	}
 	else {
