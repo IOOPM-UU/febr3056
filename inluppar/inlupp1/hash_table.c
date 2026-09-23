@@ -1,6 +1,8 @@
 #include "hash_table.h" 
 
 #define Free(ptr){ free(ptr); ptr = NULL; }
+
+#define No_Buckets 17
 /////////////////////////////////////// TYPE DEFENIITONS /////////////////////////////////////////////////////////////////////
 typedef struct entry entry_t;
 struct entry{
@@ -9,10 +11,10 @@ struct entry{
 	entry_t *next; // points to the next entry (possibly NULL)
 };
 
+
+
 struct hash_table{
-	// DODGE: hard-coding number of buckets as 17.
-	// NOTE: addressing this dodge is optional.
-	entry_t buckets[17];
+	entry_t buckets[No_Buckets];
 };
 
 /////////////////////////////////////// HASH TABLE FUNCTIONS ////////////////////////////////////////////////////////////////
@@ -37,7 +39,7 @@ static void ioopm_hash_table_destroy_HELPER(entry_t **entry) { //uses double poi
 
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) { // 
 	if (ht != NULL) {
-		for(size_t i = 0; i < 17; ++i){ //
+		for(size_t i = 0; i < No_Buckets; ++i){ //
 			if (ht->buckets[i].next != NULL){ // If a bucket contains something ...
 				entry_t *current = ht->buckets[i].next; // ... name the first node, in that bucket, 'current'.
 				while (current != NULL){ // While the current node is NOT null ...
@@ -57,7 +59,7 @@ void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) { //
 
 static entry_t *find_previous_entry(ioopm_hash_table_t *ht, char *key) {
 	// find bucket
-	size_t bucket = string_knr_hash(key) % 17;
+	size_t bucket = string_knr_hash(key) % No_Buckets;
 
 	// look for an entry with the key we want
 	entry_t *previous /*aka sentinel in the beginning*/ = &ht->buckets[bucket]; //{ .key = NULL, .value = 0, .next = ht->buckets[bucket].next};
