@@ -2,7 +2,7 @@
 
 #define Free(ptr){ free(ptr); ptr = NULL; }
 
-#define No_Buckets 17
+#define No_buckets 17
 /////////////////////////////////////// TYPE DEFENIITONS /////////////////////////////////////////////////////////////////////
 typedef struct entry entry_t;
 struct entry{
@@ -14,7 +14,7 @@ struct entry{
 
 
 struct hash_table{
-	entry_t buckets[No_Buckets];
+	entry_t buckets[No_buckets];
 };
 
 /////////////////////////////////////// HASH TABLE FUNCTIONS ////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ static void ioopm_hash_table_destroy_HELPER(entry_t **entry) { //uses double poi
 
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) { // 
 	if (ht != NULL) {
-		for(size_t i = 0; i < No_Buckets; ++i){ //
+		for(size_t i = 0; i < No_buckets; ++i){ //
 			if (ht->buckets[i].next != NULL){ // If a bucket contains something ...
 				entry_t *current = ht->buckets[i].next; // ... name the first node, in that bucket, 'current'.
 				while (current != NULL){ // While the current node is NOT null ...
@@ -59,7 +59,7 @@ void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) { //
 
 static entry_t *find_previous_entry(ioopm_hash_table_t *ht, char *key) {
 	// find bucket
-	size_t bucket = string_knr_hash(key) % No_Buckets;
+	size_t bucket = string_knr_hash(key) % No_buckets;
 
 	// look for an entry with the key we want
 	entry_t *previous /*aka sentinel in the beginning*/ = &ht->buckets[bucket]; //{ .key = NULL, .value = 0, .next = ht->buckets[bucket].next};
@@ -117,4 +117,34 @@ int ioopm_hash_table_remove(ioopm_hash_table_t *ht, char *key) {
 	
   return result;
 	
+}
+
+bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, char *key) {
+	int result = 0;
+	return ioopm_hash_table_lookup(ht, key, &result);
+}
+
+bool ioopm_hash_table_is_empty(ioopm_hash_table_t *ht) {
+	//STUB
+	return (ioopm_hash_table_size(ht) == 0);
+}
+
+static int bucket_size(entry_t *entry) {
+
+	int counter = 0;
+
+	while (entry != NULL) {
+		entry = entry->next;
+		counter += 1;
+	}
+	return counter;
+}
+
+int ioopm_hash_table_size(ioopm_hash_table_t *ht) {
+	//STUB
+	int size = 0;
+	for (int i = 0; i < No_buckets; i++) {
+		size += bucket_size(ht->buckets[i].next);
+	}
+	return size;
 }
