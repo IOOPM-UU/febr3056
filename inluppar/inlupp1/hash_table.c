@@ -1,21 +1,6 @@
 #include "hash_table.h" 
+#include "hash_table_iterator.h"
 
-#define Free(ptr){ free(ptr); ptr = NULL; }
-
-#define No_buckets 17
-/////////////////////////////////////// TYPE DEFENIITONS /////////////////////////////////////////////////////////////////////
-typedef struct entry entry_t;
-struct entry{
-	char *key;     // holds the key
-	int value;     // holds the value
-	entry_t *next; // points to the next entry (possibly NULL)
-};
-
-
-
-struct hash_table{
-	entry_t buckets[No_buckets];
-};
 
 /////////////////////////////////////// HASH TABLE FUNCTIONS ////////////////////////////////////////////////////////////////
 static size_t string_knr_hash(const char *str) {
@@ -34,7 +19,7 @@ ioopm_hash_table_t *ioopm_hash_table_create(void) {
 static void ioopm_hash_table_destroy_HELPER(entry_t **entry) { //uses double pointers to evade vanishing argument variables when function gets popped from stack.  
 	entry_t *tmp = (*entry)->next; // If current node's next pointer points somewhere, place that next node in a temporary variable. 
 	Free(*entry); // Delete the current node and ...
-	entry = &tmp; // ... see the next node as the current node. 
+	*entry = tmp; // ... see the next node as the current node. 
 }
 
 void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) { // 
@@ -51,7 +36,6 @@ void ioopm_hash_table_destroy(ioopm_hash_table_t *ht) { //
 					}
 				}
 			}
-      
     	}
 		Free(ht);
 	}
@@ -104,7 +88,7 @@ bool ioopm_hash_table_lookup(ioopm_hash_table_t *ht, char *key, int *result) {
 	}
 }
 
-int ioopm_hash_table_remove(ioopm_hash_table_t *ht, char *key) {
+int ioopm_hash_table_entry_remove(ioopm_hash_table_t *ht, char *key) {
 	int result = 0;
 	entry_t *previous = find_previous_entry(ht, key);
 	if (ioopm_hash_table_lookup(ht, key, &result)) {
@@ -124,27 +108,26 @@ bool ioopm_hash_table_has_key(ioopm_hash_table_t *ht, char *key) {
 	return ioopm_hash_table_lookup(ht, key, &result);
 }
 
-bool ioopm_hash_table_is_empty(ioopm_hash_table_t *ht) {
-	//STUB
-	return (ioopm_hash_table_size(ht) == 0);
-}
-
-static int bucket_size(entry_t *entry) {
-
-	int counter = 0;
+static size_t bucket_size(entry_t *entry) {
+	
+	int entries = 0;
 
 	while (entry != NULL) {
 		entry = entry->next;
-		counter += 1;
+		entries += 1;
 	}
-	return counter;
+	return entries;
 }
-
-int ioopm_hash_table_size(ioopm_hash_table_t *ht) {
-	//STUB
-	int size = 0;
-	for (int i = 0; i < No_buckets; i++) {
+size_t ioopm_hash_table_size(ioopm_hash_table_t *ht) {
+	size_t size = 0;
+	for (size_t i = 0; i < No_buckets; i++) {
 		size += bucket_size(ht->buckets[i].next);
 	}
 	return size;
+}
+
+
+bool ioopm_hash_table_is_empty(ioopm_hash_table_t *ht) {
+	//
+	return (ioopm_hash_table_size(ht) == 0);
 }

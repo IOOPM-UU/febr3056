@@ -11,7 +11,7 @@
 
 struct list
 {   
-    int size;
+    size_t size;
     node_t *first;
     node_t *last;
 };
@@ -90,13 +90,13 @@ int ioopm_list_head(ioopm_list_t *list) {
 int ioopm_list_last(ioopm_list_t *list) {
     return list->last->value;
 }
-int ioopm_list_size(ioopm_list_t *list) {
+size_t ioopm_list_size(ioopm_list_t *list) {
     return list->size;
 }
 
 
-void ioopm_list_insert(ioopm_list_t *list, int index, int value) {
-    assert(0 <= index && index <= ioopm_list_size(list)); // this is the precond
+void ioopm_list_insert(ioopm_list_t *list, size_t index, int value) {
+    assert(index <= ioopm_list_size(list)); // this is the precond
     
     node_t *node_to_insert = calloc(1, sizeof(node_t));
     node_to_insert->value = value;
@@ -108,7 +108,7 @@ void ioopm_list_insert(ioopm_list_t *list, int index, int value) {
     }
     else {
         node_t *current_node = list->first;
-        for (int i = 0; i < index; ++i) { // traverse list to index
+        for (size_t i = 0; i < index; ++i) { // traverse list to index
             current_node = current_node->next;
         }
         node_t *temp = current_node->next->next;
@@ -118,8 +118,7 @@ void ioopm_list_insert(ioopm_list_t *list, int index, int value) {
     }
 }   
 
-int ioopm_list_remove(ioopm_list_t *list, int index) {
-    assert(0 <= index);                           // This checks the precondtion.   
+int ioopm_list_remove(ioopm_list_t *list, size_t index) {
     assert(index <= (ioopm_list_size(list) - 1)); // This checks the precondtion.
     if (ioopm_list_is_empty(list)) { // anrop av  list_remove på tom lista ger error
         printf("\n\n ERROR: list_remove was fed an empty list. Exiting with -67\n\n");
@@ -147,7 +146,7 @@ int ioopm_list_remove(ioopm_list_t *list, int index) {
         node_t *to_remove = list->last;
         int removed_value = to_remove->value;
         node_t *node_b4_remove_target = list->first;//Start on first node and....
-        for (int i = 0; i < (index - 1); ++i) { // ....traverse list to node_b4_remove_target.
+        for (size_t i = 0; i < (index - 1); ++i) { // ....traverse list to node_b4_remove_target.
             node_b4_remove_target = node_b4_remove_target->next;
         }
         list->last = node_b4_remove_target; //rewire list->last
@@ -157,7 +156,7 @@ int ioopm_list_remove(ioopm_list_t *list, int index) {
     }
     else { // anrop av list_remove på MITTEN-ELEMENT i multiton lista.
         node_t *node_b4_target_node = list->first;
-        for (int i = 0; i < (index - 1); ++i) { // traverse list to index-1
+        for (size_t i = 0; i < (index - 1); ++i) { // traverse list to index-1
             node_b4_target_node = node_b4_target_node->next;
         }
         node_t *to_remove = node_b4_target_node->next;
@@ -169,12 +168,11 @@ int ioopm_list_remove(ioopm_list_t *list, int index) {
     }
 }
 
-int ioopm_list_get(ioopm_list_t *list, int index) {
+int ioopm_list_get(ioopm_list_t *list, size_t index) {
     //copied from remove
     //remove all parts that actually removes the entry.
     //change parts that assume size has been decreased (asserts/assignments)
     //change name of all variable (eg those named to_remove)
-    assert(0 <= index);                           // This checks the precondtion.   
     assert(index <= (ioopm_list_size(list) - 1)); // This checks the precondtion.
     if (ioopm_list_is_empty(list)) { // anrop av  list_get på tom lista ger error
         printf("\n\n ERROR: list_get was fed an empty list. Exiting with -67\n\n");
@@ -187,7 +185,7 @@ int ioopm_list_get(ioopm_list_t *list, int index) {
     }
     else { // anrop av list_get på MITTEN-ELEMENT i multiton lista.
         node_t *current_node = list->first;
-        for (int i = 0; i < index; ++i) { // traverse list to index
+        for (size_t i = 0; i < index; ++i) { // traverse list to index
             current_node = current_node->next;
         }
         return current_node->value;
