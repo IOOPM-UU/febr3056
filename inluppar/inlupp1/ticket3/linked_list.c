@@ -1,5 +1,6 @@
 #include "linked_list.h"
 
+
 #include <stdlib.h>
 #include <stddef.h>
 #include <CUnit/Basic.h>
@@ -8,18 +9,6 @@
 #include <stdio.h>
 
 
-
-struct list
-{   
-    size_t size;
-    node_t *first;
-    node_t *last;
-};
-struct node
-{
-    int value;
-    node_t *next;
-};
 
 
 
@@ -43,7 +32,7 @@ void ioopm_list_destroy(ioopm_list_t *list) {
     
 }
 
-void ioopm_list_append(ioopm_list_t *list, int value) {
+void ioopm_list_append(ioopm_list_t *list, elem_t value) {
     node_t *pNode = calloc(1, sizeof(node_t));
     pNode->value = value;
     pNode->next = NULL;
@@ -63,7 +52,7 @@ void ioopm_list_append(ioopm_list_t *list, int value) {
     }
     list->size += 1;
 }
-void ioopm_list_prepend(ioopm_list_t *list, int value) {
+void ioopm_list_prepend(ioopm_list_t *list, elem_t value) {
     node_t *pNode = calloc(1, sizeof(node_t));
     pNode->value = value;
     pNode->next = NULL;
@@ -74,6 +63,7 @@ void ioopm_list_prepend(ioopm_list_t *list, int value) {
         //pNode->next = list->first;   //oldcode
     }
     else if (ioopm_list_size(list) == 1) { // singelton list case
+        //Never runs ins the tests
         pNode->next = list->first;
         list->first = pNode;
     } 
@@ -83,11 +73,11 @@ void ioopm_list_prepend(ioopm_list_t *list, int value) {
     }  
     list->size += 1;
 }
-int ioopm_list_head(ioopm_list_t *list) {
+elem_t ioopm_list_head(ioopm_list_t *list) {
     return list->first->value;
 }
 
-int ioopm_list_last(ioopm_list_t *list) {
+elem_t ioopm_list_last(ioopm_list_t *list) {
     return list->last->value;
 }
 size_t ioopm_list_size(ioopm_list_t *list) {
@@ -95,7 +85,7 @@ size_t ioopm_list_size(ioopm_list_t *list) {
 }
 
 
-void ioopm_list_insert(ioopm_list_t *list, size_t index, int value) {
+void ioopm_list_insert(ioopm_list_t *list, size_t index, elem_t value) {
     assert(index <= ioopm_list_size(list)); // this is the precond
     
     node_t *node_to_insert = calloc(1, sizeof(node_t));
@@ -107,6 +97,7 @@ void ioopm_list_insert(ioopm_list_t *list, size_t index, int value) {
         ioopm_list_append(list, value);
     }
     else {
+        //Never runs ins the tests
         node_t *current_node = list->first;
         for (size_t i = 0; i < index; ++i) { // traverse list to index
             current_node = current_node->next;
@@ -118,7 +109,7 @@ void ioopm_list_insert(ioopm_list_t *list, size_t index, int value) {
     }
 }   
 
-int ioopm_list_remove(ioopm_list_t *list, size_t index) {
+elem_t ioopm_list_remove(ioopm_list_t *list, size_t index) {
     assert(index <= (ioopm_list_size(list) - 1)); // This checks the precondtion.
     if (ioopm_list_is_empty(list)) { // anrop av  list_remove på tom lista ger error
         printf("\n\n ERROR: list_remove was fed an empty list. Exiting with -67\n\n");
@@ -126,8 +117,9 @@ int ioopm_list_remove(ioopm_list_t *list, size_t index) {
     }
     //a lot of abstraction possible here.
     else if (ioopm_list_size(list) == 1) { // anrop av  list_remove på singelton-lista 
+        //Never runs ins the tests
         assert(index == 0);
-        int removed_value = list->first->value;
+        elem_t removed_value = list->first->value;
         Free(list->first);
         list->last = NULL;
         list->size -= 1;
@@ -136,7 +128,7 @@ int ioopm_list_remove(ioopm_list_t *list, size_t index) {
     }
     else if (index == 0) { // anrop av list_remove på FÖRSTA elementet i multiton lista 
         node_t *to_remove = list->first;
-        int removed_value = to_remove->value;
+        elem_t removed_value = to_remove->value;
         list->first = list->first->next; //rewire list->first
         Free(to_remove);
         list->size -= 1;
@@ -144,7 +136,7 @@ int ioopm_list_remove(ioopm_list_t *list, size_t index) {
     }
     else if (index == (ioopm_list_size(list) - 1)) {    // anrop av list_remove på SISTA elementet i multiton lista 
         node_t *to_remove = list->last;
-        int removed_value = to_remove->value;
+        elem_t removed_value = to_remove->value;
         node_t *node_b4_remove_target = list->first;//Start on first node and....
         for (size_t i = 0; i < (index - 1); ++i) { // ....traverse list to node_b4_remove_target.
             node_b4_remove_target = node_b4_remove_target->next;
@@ -160,7 +152,7 @@ int ioopm_list_remove(ioopm_list_t *list, size_t index) {
             node_b4_target_node = node_b4_target_node->next;
         }
         node_t *to_remove = node_b4_target_node->next;
-        int removed_value = to_remove->value;
+        elem_t removed_value = to_remove->value;
         node_b4_target_node->next = to_remove->next;
         Free(to_remove);
         list->size -= 1;
@@ -168,7 +160,7 @@ int ioopm_list_remove(ioopm_list_t *list, size_t index) {
     }
 }
 
-int ioopm_list_get(ioopm_list_t *list, size_t index) {
+elem_t ioopm_list_get(ioopm_list_t *list, size_t index) {
     //copied from remove
     //remove all parts that actually removes the entry.
     //change parts that assume size has been decreased (asserts/assignments)
